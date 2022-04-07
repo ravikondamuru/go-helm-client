@@ -17,6 +17,7 @@ import (
 	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/downloader"
 	"helm.sh/helm/v3/pkg/getter"
+	"helm.sh/helm/v3/pkg/registry"
 	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/repo"
 	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
@@ -96,6 +97,15 @@ func newClient(options *Options, clientGetter genericclioptions.RESTClientGetter
 	if err != nil {
 		return nil, err
 	}
+
+	registryClient, err := registry.NewClient(
+		registry.ClientOptDebug(settings.Debug),
+		registry.ClientOptCredentialsFile(settings.RegistryConfig),
+        )
+	if err != nil {
+		return nil, err
+	}
+	actionConfig.RegistryClient = registryClient
 
 	return &HelmClient{
 		Settings:     settings,
